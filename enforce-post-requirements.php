@@ -73,8 +73,10 @@ class tto_enforce_post_requirements {
 	 * displays error page if publishing prevented with reasons why
      */
     static function prevent_post_publishing($post_id) {
-        $post = get_post( $post_id );
-        if ($post->post_type == 'post' && $post->post_status == 'publish') {
+		$post = get_post( $post_id );
+		$current_user = wp_get_current_user();
+        $user_role = $current_user->roles[0];
+        if ($user_role == 'administrator' && $post->post_type == 'post' && $post->post_status == 'publish') {
 
             $prevent_post_publish = false;
             $error_message = '<h1>Post not published. Please complete the following items:</h1><ul>';
@@ -86,8 +88,6 @@ class tto_enforce_post_requirements {
                 $yoast_content_score = get_post_meta($post_id, '_yoast_wpseo_content_score', true);
             }
 
-            $current_user = wp_get_current_user();
-            $user_role = $current_user->roles[0];
             $current_user_id = $current_user->ID;
             $post_categories = get_the_category( $post_id );
 			$post_author_id = (int)$post->post_author;//post_author is stored as a numeric string
