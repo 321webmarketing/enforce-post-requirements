@@ -29,7 +29,7 @@ $myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
 	6
 );
 
-
+$myUpdateChecker->setBranch('production');
 
 /**
  * Main class for plugin
