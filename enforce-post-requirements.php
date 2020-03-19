@@ -7,7 +7,7 @@
  * Author URI:      321webmarketing.com
  * Text Domain:     enforce-post-requirements
  * Domain Path:     /languages
- * Version:         1.2.0
+ * Version:         1.3.0
  *
  * @package         Enforce_Post_Requirements
  */
@@ -38,7 +38,7 @@ class tto_enforce_post_requirements {
     /**
      * @string version version number for the plugin
      */
-    const version = '1.2.0';
+    const version = '1.3s.0';
 
     /**
      * allows plugin to call wordpress core function to check for compatibility with other plugins
@@ -90,7 +90,12 @@ class tto_enforce_post_requirements {
             $user_role = $current_user->roles[0];
             $current_user_id = $current_user->ID;
             $post_categories = get_the_category( $post_id );
-            $post_author_id = (int)$post->post_author;//post_author is stored as a numeric string
+			$post_author_id = (int)$post->post_author;//post_author is stored as a numeric string
+			$post_author = get_userdata( $post_author_id );
+			$post_author_roles = $post_author->roles;
+			if ( in_array( 'administrator', $post_author_roles, true ) ) {
+				$post_author_is_admin = true;
+			}
 
             $options = get_option( 'enforce_post_requirements_settings' );
 
@@ -105,8 +110,8 @@ class tto_enforce_post_requirements {
                 }
             }
 
-            if( $user_role === 'administrator' && $options['enforce_post_requirements_author'] ) {
-                $error_message .= '<li>Change blog author/username to non-321 author/username <strong>(required)</strong></li>';
+            if( $post_author_is_admin  && $options['enforce_post_requirements_author'] ) {
+                $error_message .= '<li>Change blog author/username to non-admin author/username <strong>(required)</strong></li>';
                 $prevent_post_publish = true;
             }
             if( $options['enforce_post_requirements_category'] ) {
