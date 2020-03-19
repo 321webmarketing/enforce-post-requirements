@@ -12,8 +12,8 @@ if ( !class_exists('Puc_v4p9_UpdateChecker', false) ):
 		 * and should be logged to the standard PHP error log.
 		 * @var bool
 		 */
-		public $debugMode = true;
-		//public $debugMode = null;
+		//public $debugMode = true;
+		public $debugMode = null;
 
 		/**
 		 * @var string Where to store the update info.

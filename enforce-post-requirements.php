@@ -25,31 +25,29 @@ require 'plugin-update-checker-master/plugin-update-checker.php';
 $myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
 	'https://github.com/321webmarketing/enforce-post-requirements/',
 	__FILE__,
-    'enforce-post-requirements'
+	'enforce-post-requirements',
+	6
 );
-//$myUpdateChecker->checkForUpdates();
-
-//Optional: If you're using a private repository, specify the access token like this:
 
 
 
 /**
- *
+ * Main class for plugin
  */
 class tto_enforce_post_requirements {
     /**
-     *
+     * @string version version number for the plugin
      */
     const version = '1.2.0';
 
     /**
-     *
+     * allows plugin to call wordpress core function to check for compatibility with other plugins
      */
     static function is_plugin_active( $plugin ) {
         return in_array( $plugin, (array) get_option( 'active_plugins', array() ) );
     }
     /**
-     *
+     * writes default settings to database on initial install
      */
     static function load_default_settings() {
         if( ! get_option( 'enforce_post_requirements_version' ) && ! tto_enforce_post_requirements::is_plugin_active('wordpress-seo/wp-seo.php') ) {
@@ -70,7 +68,9 @@ class tto_enforce_post_requirements {
     }
 
     /**
-     *
+     * @hook save_post
+	 * runs on save_post hook and prevents a post from publishing if requirements are not met
+	 * displays error page if publishing prevented with reasons why
      */
     static function prevent_post_publishing($post_id) {
         $post = get_post( $post_id );
@@ -131,6 +131,11 @@ class tto_enforce_post_requirements {
 
 add_action('save_post', array('tto_enforce_post_requirements', 'prevent_post_publishing'), -1);
 
+/**
+ * @hook wp_loaded
+ * initial install function only runs if plugin has not been installed before, or the version
+ * number in the database is older than the current version
+ */
 function tto_prevent_post_publishing_activation() {
     tto_enforce_post_requirements::load_default_settings();
     update_option('enforce_post_requirements_version', array(
@@ -140,8 +145,3 @@ function tto_prevent_post_publishing_activation() {
 if ( ! get_option( 'enforce_post_requirements_version' ) || get_option( 'enforce_post_requirements_version' ) < tto_enforce_post_requirements::version ) {
     add_action( 'wp_loaded', 'tto_prevent_post_publishing_activation' );
 }
-
-
-
-
-//register_activation_hook( __FILE__, 'tto_prevent_post_publishing_activation' );
