@@ -7,7 +7,7 @@
  * Author URI:      321webmarketing.com
  * Text Domain:     enforce-post-requirements
  * Domain Path:     /languages
- * Version:         1.4.0
+ * Version:         1.5.0
  *
  * @package         Enforce_Post_Requirements
  */
@@ -38,7 +38,7 @@ class tto_enforce_post_requirements {
     /**
      * @string version version number for the plugin
      */
-    const version = '1.4.0';
+    const version = '1.5.0';
 
     /**
      * allows plugin to call wordpress core function to check for compatibility with other plugins
