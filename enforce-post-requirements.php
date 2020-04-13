@@ -7,7 +7,7 @@
  * Author URI:      321webmarketing.com
  * Text Domain:     enforce-post-requirements
  * Domain Path:     /languages
- * Version:         1.5.0
+ * Version:         1.5.1
  *
  * @package         Enforce_Post_Requirements
  */
@@ -38,7 +38,7 @@ class tto_enforce_post_requirements {
     /**
      * @string version version number for the plugin
      */
-    const version = '1.5.0';
+    const version = '1.5.1';
 
     /**
      * allows plugin to call wordpress core function to check for compatibility with other plugins
@@ -93,7 +93,10 @@ class tto_enforce_post_requirements {
 			$post_author_id = (int)$post->post_author;//post_author is stored as a numeric string
 			$post_author = get_userdata( $post_author_id );
 			$post_author_roles = $post_author->roles;
+			$post_author_name = get_userdata($post_author_id)->user_login;
 			if ( in_array( 'administrator', $post_author_roles, true ) ) {
+				$post_author_is_admin = true;
+			} else if (strpos($post_author_name, 'tto_poster') ) {
 				$post_author_is_admin = true;
 			}
 
