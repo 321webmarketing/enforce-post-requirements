@@ -96,7 +96,7 @@ class tto_enforce_post_requirements {
 			$post_author_name = get_userdata($post_author_id)->user_login;
 			if ( in_array( 'administrator', $post_author_roles, true ) ) {
 				$post_author_is_admin = true;
-			} else if (strpos($post_author_name, 'tto_poster') ) {
+			} else if (strpos($post_author_name, 'tto_poster') !== false ) {
 				$post_author_is_admin = true;
 			}
 
