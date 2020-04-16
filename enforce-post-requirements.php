@@ -7,7 +7,7 @@
  * Author URI:      321webmarketing.com
  * Text Domain:     enforce-post-requirements
  * Domain Path:     /languages
- * Version:         1.4.0
+ * Version:         1.5.1
  *
  * @package         Enforce_Post_Requirements
  */
@@ -38,7 +38,7 @@ class tto_enforce_post_requirements {
     /**
      * @string version version number for the plugin
      */
-    const version = '1.4.0';
+    const version = '1.5.1';
 
     /**
      * allows plugin to call wordpress core function to check for compatibility with other plugins
@@ -73,10 +73,8 @@ class tto_enforce_post_requirements {
 	 * displays error page if publishing prevented with reasons why
      */
     static function prevent_post_publishing($post_id) {
-		$post = get_post( $post_id );
-		$current_user = wp_get_current_user();
-        $user_role = $current_user->roles[0];
-        if ($user_role == 'administrator' && $post->post_type == 'post' && $post->post_status == 'publish') {
+        $post = get_post( $post_id );
+        if ($post->post_type == 'post' && $post->post_status == 'publish') {
 
             $prevent_post_publish = false;
             $error_message = '<h1>Post not published. Please complete the following items:</h1><ul>';
@@ -88,12 +86,17 @@ class tto_enforce_post_requirements {
                 $yoast_content_score = get_post_meta($post_id, '_yoast_wpseo_content_score', true);
             }
 
+            $current_user = wp_get_current_user();
+            $user_role = $current_user->roles[0];
             $current_user_id = $current_user->ID;
             $post_categories = get_the_category( $post_id );
 			$post_author_id = (int)$post->post_author;//post_author is stored as a numeric string
 			$post_author = get_userdata( $post_author_id );
 			$post_author_roles = $post_author->roles;
+			$post_author_name = get_userdata($post_author_id)->user_login;
 			if ( in_array( 'administrator', $post_author_roles, true ) ) {
+				$post_author_is_admin = true;
+			} else if (strpos($post_author_name, 'tto_poster') !== false ) {
 				$post_author_is_admin = true;
 			}
 
