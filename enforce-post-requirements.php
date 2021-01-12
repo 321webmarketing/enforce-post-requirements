@@ -29,7 +29,7 @@ $myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
 	6
 );
 
-
+$myUpdateChecker->setBranch('production');
 
 /**
  * Main class for plugin
@@ -41,7 +41,7 @@ class tto_enforce_post_requirements {
     const version = '1.5.1';
 
     /**
-     * allows plugin to call wordpress core function to check for compatibility with other plugins
+     * this allows plugin to call wordpress core function to check for compatibility with other plugins
      */
     static function is_plugin_active( $plugin ) {
         return in_array( $plugin, (array) get_option( 'active_plugins', array() ) );
