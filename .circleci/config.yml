@@ -23,7 +23,6 @@ job-references:
       sudo apt-get update && sudo apt-get install subversion
       sudo docker-php-ext-configure pdo_mysql --with-pdo-mysql=mysqlnd
       sudo -E docker-php-ext-install pdo_mysql mysqli
-      sudo sh -c "printf '\ndeb http://ftp.us.debian.org/debian sid main\n' >> /etc/apt/sources.list"
       sudo apt-get update && sudo apt-get install default-mysql-client
 
   php_job: &php_job
