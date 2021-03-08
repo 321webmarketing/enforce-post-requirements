@@ -7,7 +7,7 @@
  * Author URI:      321webmarketing.com
  * Text Domain:     enforce-post-requirements
  * Domain Path:     /languages
- * Version:         1.5.1
+ * Version:         1.5.2
  *
  * @package         Enforce_Post_Requirements
  */
@@ -38,10 +38,10 @@ class tto_enforce_post_requirements {
     /**
      * @string version version number for the plugin
      */
-    const version = '1.5.1';
+    const version = '1.5.2';
 
     /**
-     * allows plugin to call wordpress core function to check for compatibility with other plugins
+     * this allows plugin to call wordpress core function to check for compatibility with other plugins
      */
     static function is_plugin_active( $plugin ) {
         return in_array( $plugin, (array) get_option( 'active_plugins', array() ) );
@@ -74,7 +74,7 @@ class tto_enforce_post_requirements {
      */
     static function prevent_post_publishing($post_id) {
         $post = get_post( $post_id );
-        if ($post->post_type == 'post' && $post->post_status == 'publish') {
+        if ($post->post_type == 'post' && ( $post->post_status == 'publish' || $post->post_status == 'future' ) )  {
 
             $prevent_post_publish = false;
             $error_message = '<h1>Post not published. Please complete the following items:</h1><ul>';
