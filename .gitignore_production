@@ -16,3 +16,4 @@ node_modules/
 bin/
 .distignore
 .circleci/
+.gitignore_master
