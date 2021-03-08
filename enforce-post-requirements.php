@@ -38,7 +38,7 @@ class tto_enforce_post_requirements {
     /**
      * @string version version number for the plugin
      */
-    const version = '1.5.1';
+    const version = '1.5.2';
 
     /**
      * this allows plugin to call wordpress core function to check for compatibility with other plugins
