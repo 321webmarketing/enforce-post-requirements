@@ -155,6 +155,8 @@ if ( ! get_option( 'enforce_post_requirements_version' ) || get_option( 'enforce
 }
 
 
+/**************** */
+
 /**
  * Disable the emoji's
  */
@@ -169,7 +171,7 @@ function disable_emojis() {
 	add_filter( 'tiny_mce_plugins', 'disable_emojis_tinymce' );
 	add_filter( 'wp_resource_hints', 'disable_emojis_remove_dns_prefetch', 10, 2 );
 }
-add_action( 'init', 'disable_emojis' );
+	add_action( 'init', 'disable_emojis' );
 
 /**
 * Filter function used to remove the tinymce emoji plugin.
@@ -200,5 +202,5 @@ function disable_emojis_remove_dns_prefetch( $urls, $relation_type ) {
 		$urls = array_diff( $urls, array( $emoji_svg_url ) );
 	}
 
-	return $urls;
+		return $urls;
 }
