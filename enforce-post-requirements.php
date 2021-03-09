@@ -7,7 +7,7 @@
  * Author URI:      321webmarketing.com
  * Text Domain:     enforce-post-requirements
  * Domain Path:     /languages
- * Version:         1.5.2
+ * Version:         1.5.3
  *
  * @package         Enforce_Post_Requirements
  */
@@ -38,7 +38,7 @@ class tto_enforce_post_requirements {
     /**
      * @string version version number for the plugin
      */
-    const version = '1.5.2';
+    const version = '1.5.3';
 
     /**
      * this allows plugin to call wordpress core function to check for compatibility with other plugins
@@ -152,4 +152,55 @@ function tto_prevent_post_publishing_activation() {
 }
 if ( ! get_option( 'enforce_post_requirements_version' ) || get_option( 'enforce_post_requirements_version' ) < tto_enforce_post_requirements::version ) {
     add_action( 'wp_loaded', 'tto_prevent_post_publishing_activation' );
+}
+
+
+/**************** */
+
+/**
+ * Disable the emoji's
+ */
+function disable_emojis() {
+	remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+	remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
+	remove_action( 'wp_print_styles', 'print_emoji_styles' );
+	remove_action( 'admin_print_styles', 'print_emoji_styles' );
+	remove_filter( 'the_content_feed', 'wp_staticize_emoji' );
+	remove_filter( 'comment_text_rss', 'wp_staticize_emoji' );
+	remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
+	add_filter( 'tiny_mce_plugins', 'disable_emojis_tinymce' );
+	add_filter( 'wp_resource_hints', 'disable_emojis_remove_dns_prefetch', 10, 2 );
+}
+	add_action( 'init', 'disable_emojis' );
+
+/**
+* Filter function used to remove the tinymce emoji plugin.
+*
+* @param array $plugins
+* @return array Difference betwen the two arrays
+*/
+function disable_emojis_tinymce( $plugins ) {
+	if ( is_array( $plugins ) ) {
+		return array_diff( $plugins, array( 'wpemoji' ) );
+	} else {
+		return array();
+	}
+}
+
+/**
+* Remove emoji CDN hostname from DNS prefetching hints.
+*
+* @param array $urls URLs to print for resource hints.
+* @param string $relation_type The relation type the URLs are printed for.
+* @return array Difference betwen the two arrays.
+*/
+function disable_emojis_remove_dns_prefetch( $urls, $relation_type ) {
+	if ( 'dns-prefetch' == $relation_type ) {
+		/** This filter is documented in wp-includes/formatting.php */
+		$emoji_svg_url = apply_filters( 'emoji_svg_url', 'https://s.w.org/images/core/emoji/2/svg/' );
+
+		$urls = array_diff( $urls, array( $emoji_svg_url ) );
+	}
+
+		return $urls;
 }
