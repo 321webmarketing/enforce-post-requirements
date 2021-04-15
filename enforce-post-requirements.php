@@ -7,7 +7,7 @@
  * Author URI:      321webmarketing.com
  * Text Domain:     enforce-post-requirements
  * Domain Path:     /languages
- * Version:         1.5.3
+ * Version:         1.6.0
  *
  * @package         Enforce_Post_Requirements
  */
@@ -21,6 +21,7 @@ if ( ! defined( 'WPINC' ) ) {
 
 require 'admin-menu.php';
 require 'plugin-update-checker-master/plugin-update-checker.php';
+require 'tto_custom_scripts.php';
 
 $myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
 	'https://github.com/321webmarketing/enforce-post-requirements/',
@@ -38,7 +39,7 @@ class tto_enforce_post_requirements {
     /**
      * @string version version number for the plugin
      */
-    const version = '1.5.3';
+    const version = '1.6.0';
 
     /**
      * this allows plugin to call wordpress core function to check for compatibility with other plugins
@@ -98,6 +99,8 @@ class tto_enforce_post_requirements {
 				$post_author_is_admin = true;
 			} else if (strpos($post_author_name, 'tto_poster') !== false ) {
 				$post_author_is_admin = true;
+			} else {
+				$post_author_is_admin = false;
 			}
 
             $options = get_option( 'enforce_post_requirements_settings' );
@@ -155,52 +158,136 @@ if ( ! get_option( 'enforce_post_requirements_version' ) || get_option( 'enforce
 }
 
 
-/**************** */
+class tto_no_author_publish {
+	public static $debug_log = '';
 
-/**
- * Disable the emoji's
- */
-function disable_emojis() {
-	remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
-	remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
-	remove_action( 'wp_print_styles', 'print_emoji_styles' );
-	remove_action( 'admin_print_styles', 'print_emoji_styles' );
-	remove_filter( 'the_content_feed', 'wp_staticize_emoji' );
-	remove_filter( 'comment_text_rss', 'wp_staticize_emoji' );
-	remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
-	add_filter( 'tiny_mce_plugins', 'disable_emojis_tinymce' );
-	add_filter( 'wp_resource_hints', 'disable_emojis_remove_dns_prefetch', 10, 2 );
-}
-	add_action( 'init', 'disable_emojis' );
+	static function nap_setup_function() {
+		$user = wp_get_current_user();
+		if ( tto_no_author_publish::is_tto_poster( $user ) ) {
+			add_filter( 'gettext', array('tto_no_author_publish', 'modify_publish_button'), 10, 2 );
+			//the save_draft_and_notify function will be called after the publish button is clicked
+			add_action( 'save_post', array('tto_no_author_publish', 'save_draft_and_notify'), 2 );
+			add_action( 'wp_loaded', function() use ($user) {
+				tto_no_author_publish::give_tto_poster_access_to_change_author($user);
+			});
 
-/**
-* Filter function used to remove the tinymce emoji plugin.
-*
-* @param array $plugins
-* @return array Difference betwen the two arrays
-*/
-function disable_emojis_tinymce( $plugins ) {
-	if ( is_array( $plugins ) ) {
-		return array_diff( $plugins, array( 'wpemoji' ) );
-	} else {
-		return array();
+			add_action('shutdown', array('tto_no_author_publish', 'export_nap_error_log'));
+			// add_action( 'init', function() use ($user) {
+			// 	tto_no_author_publish::remove_tto_poster_access_to_change_author($user);
+			// });
+		}
+	}
+
+	static function add_output($string) {
+		tto_no_author_publish::$debug_log .= $string . ' ';
+	}
+
+	static function is_tto_poster( $user ) {
+		$current_role = tto_no_author_publish::nap_get_current_user_roles($user);
+		$user_login = $user->user_login;
+		if ( ($current_role == 'author') && strpos($user_login, 'tto_poster') !== false ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	static function give_tto_poster_access_to_change_author($user) {
+		global $pagenow;
+		if (in_array( $pagenow, array( 'post.php', 'post-new.php' ) )) {
+			if ( ! user_can($user, 'edit_others_posts' )) {
+				$user->add_cap('edit_others_posts', true);
+				tto_no_author_publish::add_output('capability added');
+			} else {
+				tto_no_author_publish::add_output('capability not added');
+			}
+
+		} else {
+			if ( user_can($user, 'edit_others_posts' )) {
+				$user->remove_cap('edit_others_posts');
+				tto_no_author_publish::add_output('capability removed');
+			} else {
+				tto_no_author_publish::add_output('capability not removed');
+			}
+		}
+	}
+
+	/**
+	 * Get the user's roles
+	 * @since 1.0.0
+	 */
+	static function nap_get_current_user_roles($user) {
+		if( is_user_logged_in() ) {
+
+			$roles = ( array ) $user->roles;
+			//return $roles; // This returns an array
+			// Use this to return a single value
+			return $roles[0];
+		} else {
+			return false;
+		}
+	}
+
+
+	static function modify_publish_button( $translation, $text ) {
+
+		if ( 'post' == get_post_type() && ($text == 'Publish' || $text == 'Update' || $text == 'Schedule') ) {
+
+			return 'Submit Draft';
+
+		} else {
+
+			return $translation;
+		}
+
+		tto_no_author_publish::add_output('modifying publish button');
+	}
+	static function save_draft_and_notify( $post_id ) {
+		$post = get_post( $post_id );
+		$new_status = $post->post_status;
+		if ( $new_status === 'publish' || $new_status === 'future' ) {
+			$args = array (
+				'response' => 300,
+				'back_link' => true,
+				'exit' => true,
+			);
+			$post->post_status = 'draft';
+			wp_update_post($post);
+			//tto_no_author_publish::notify_admin_of_draft( $post_id );
+			wp_die(tto_no_author_publish::nap_draft_submission_notification(), 'Draft Submitted', $args);
+		}
+	}
+
+	static function notify_admin_of_draft($post_id) {
+		//email notification
+		$post_title = get_the_title( $post_id );
+		$post_url = get_permalink( $post_id );
+		$user_login = wp_get_current_user()->user_login;
+		$subject = 'A new draft has been submitted by: ' . $user_login;
+
+
+
+		$message = "A new draft has been submitted on the website:". get_bloginfo() ."\n\n";
+		$message .= $post_title . ": " . $post_url;
+
+		if ( strlen($post_url) > 1 ) {
+			// Send email to admin.
+			wp_mail( 'readytopost@321hub.zendesk.com', $subject, $message );
+		}
+	}
+
+	static function nap_draft_submission_notification() {
+		return sprintf(
+			__( 'Thank you, your draft has been submitted.' )
+		);
+	}
+
+	static function export_nap_error_log() {
+		//error_log(tto_no_author_publish::$debug_log);
 	}
 }
 
-/**
-* Remove emoji CDN hostname from DNS prefetching hints.
-*
-* @param array $urls URLs to print for resource hints.
-* @param string $relation_type The relation type the URLs are printed for.
-* @return array Difference betwen the two arrays.
-*/
-function disable_emojis_remove_dns_prefetch( $urls, $relation_type ) {
-	if ( 'dns-prefetch' == $relation_type ) {
-		/** This filter is documented in wp-includes/formatting.php */
-		$emoji_svg_url = apply_filters( 'emoji_svg_url', 'https://s.w.org/images/core/emoji/2/svg/' );
+add_action('init', array('tto_no_author_publish', 'nap_setup_function') );
 
-		$urls = array_diff( $urls, array( $emoji_svg_url ) );
-	}
 
-		return $urls;
-}
+
