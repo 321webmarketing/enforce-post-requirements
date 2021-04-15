@@ -72,10 +72,8 @@ class EnforcePostRequirementsTest extends WP_UnitTestCase {
 
 
 		if ($args['featured_image']) {
-			$attachment_id = $this->factory->attachment->create(array(
-				'post_parent' => $post_id,
-			));
-			update_post_meta($post_id, '_thumbnail_id', ''.$attachment_id .'');
+			//$attachment_id = $this->factory->attachment->create();
+			update_post_meta($post_id, '_thumbnail_id', '67');
 		} else {
 			update_post_meta($post_id, '_thumbnail_id', '');
 		}
