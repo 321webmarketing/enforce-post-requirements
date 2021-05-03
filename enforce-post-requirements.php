@@ -7,7 +7,7 @@
  * Author URI:      321webmarketing.com
  * Text Domain:     enforce-post-requirements
  * Domain Path:     /languages
- * Version:         1.6.0
+ * Version:         1.6.1
  *
  * @package         Enforce_Post_Requirements
  */
@@ -39,7 +39,7 @@ class tto_enforce_post_requirements {
     /**
      * @string version version number for the plugin
      */
-    const version = '1.6.0';
+    const version = '1.6.1';
 
     /**
      * this allows plugin to call wordpress core function to check for compatibility with other plugins
@@ -278,7 +278,7 @@ class tto_no_author_publish {
 
 	static function nap_draft_submission_notification() {
 		return sprintf(
-			__( 'Thank you, your draft has been submitted.' )
+			__( 'Thank you, please go ahead and update the post\'s status to POST QA at <a href="beta.321webmarketing.com" target="_blank">beta.321webmarketing.com</a>.' )
 		);
 	}
 
