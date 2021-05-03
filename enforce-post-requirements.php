@@ -22,6 +22,7 @@ if ( ! defined( 'WPINC' ) ) {
 require 'admin-menu.php';
 require 'plugin-update-checker-master/plugin-update-checker.php';
 require 'tto_custom_scripts.php';
+require 'tto-prevent-spam.php';
 
 $myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
 	'https://github.com/321webmarketing/enforce-post-requirements/',

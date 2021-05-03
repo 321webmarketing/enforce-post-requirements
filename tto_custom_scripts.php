@@ -1,7 +1,5 @@
 <?php
 
-/**************** */
-
 /**
  * Disable the emoji's
  */
@@ -48,4 +46,13 @@ function tto_disable_emojis_remove_dns_prefetch( $urls, $relation_type ) {
 	}
 
 		return $urls;
+}
+
+add_filter('wp_handle_upload_prefilter', 'custom_upload_filter' );
+
+function custom_upload_filter( $file ) {
+	if ($file['size'] > 120999 && $file['type'] == 'image/jpeg') {
+		$file['error'] = "This file is too large, please reduce the size to under 120kb.  If you must upload it, please convert the image to PNG.";
+	}
+    return $file;
 }
