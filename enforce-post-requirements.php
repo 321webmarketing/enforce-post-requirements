@@ -7,7 +7,7 @@
  * Author URI:      321webmarketing.com
  * Text Domain:     enforce-post-requirements
  * Domain Path:     /languages
- * Version:         1.6.0
+ * Version:         1.7.0
  *
  * @package         Enforce_Post_Requirements
  */
@@ -31,7 +31,7 @@ $myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
 	6
 );
 
-$myUpdateChecker->setBranch('production');
+$myUpdateChecker->setBranch('master');
 
 /**
  * Main class for plugin
@@ -40,7 +40,7 @@ class tto_enforce_post_requirements {
     /**
      * @string version version number for the plugin
      */
-    const version = '1.6.0';
+    const version = '1.7.0';
 
     /**
      * this allows plugin to call wordpress core function to check for compatibility with other plugins
@@ -254,26 +254,7 @@ class tto_no_author_publish {
 			);
 			$post->post_status = 'draft';
 			wp_update_post($post);
-			//tto_no_author_publish::notify_admin_of_draft( $post_id );
 			wp_die(tto_no_author_publish::nap_draft_submission_notification(), 'Draft Submitted', $args);
-		}
-	}
-
-	static function notify_admin_of_draft($post_id) {
-		//email notification
-		$post_title = get_the_title( $post_id );
-		$post_url = get_permalink( $post_id );
-		$user_login = wp_get_current_user()->user_login;
-		$subject = 'A new draft has been submitted by: ' . $user_login;
-
-
-
-		$message = "A new draft has been submitted on the website:". get_bloginfo() ."\n\n";
-		$message .= $post_title . ": " . $post_url;
-
-		if ( strlen($post_url) > 1 ) {
-			// Send email to admin.
-			wp_mail( 'readytopost@321hub.zendesk.com', $subject, $message );
 		}
 	}
 
