@@ -260,7 +260,7 @@ class tto_no_author_publish {
 
 	static function nap_draft_submission_notification() {
 		return sprintf(
-			__( 'Thank you, your draft has been submitted.' )
+			__( 'Thank you, please go ahead and update the post\'s status to POST QA at <a href="beta.321webmarketing.com" target="_blank">beta.321webmarketing.com</a>.' )
 		);
 	}
 
