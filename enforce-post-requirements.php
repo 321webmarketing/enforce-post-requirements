@@ -7,7 +7,7 @@
  * Author URI:      321webmarketing.com
  * Text Domain:     enforce-post-requirements
  * Domain Path:     /languages
- * Version:         1.7.0
+ * Version:         1.7.1
  *
  * @package         Enforce_Post_Requirements
  */
@@ -40,7 +40,7 @@ class tto_enforce_post_requirements {
     /**
      * @string version version number for the plugin
      */
-    const version = '1.7.0';
+    const version = '1.7.1';
 
     /**
      * this allows plugin to call wordpress core function to check for compatibility with other plugins
@@ -165,6 +165,7 @@ class tto_no_author_publish {
 	static function nap_setup_function() {
 		$user = wp_get_current_user();
 		if ( tto_no_author_publish::is_tto_poster( $user ) ) {
+			add_filter( 'user_can_richedit' , '__return_false', 50 );
 			add_filter( 'gettext', array('tto_no_author_publish', 'modify_publish_button'), 10, 2 );
 			//the save_draft_and_notify function will be called after the publish button is clicked
 			add_action( 'save_post', array('tto_no_author_publish', 'save_draft_and_notify'), 2 );
